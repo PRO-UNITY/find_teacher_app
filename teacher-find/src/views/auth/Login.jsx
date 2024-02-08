@@ -19,8 +19,8 @@ const Login = ({ navigation }) => {
             phone,
             password,
         };
-        // navigation.navigate('TabBar');
-        navigation.navigate('TabBarTeacher');
+        navigation.navigate('TabBar');
+        // navigation.navigate('TabBarTeacher');
         // loginUser(data)
         //   .then(async (res) => {
         //     await AsyncStorage.setItem('token', res.access)
