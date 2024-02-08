@@ -1,19 +1,37 @@
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, Platform, Pressable } from "react-native";
-import React, { useState } from "react";
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, Platform, Pressable, Modal } from "react-native";
+import React, { useEffect, useState } from "react";
 import DoctorInfo from "../../components/teacher-info/TeacherInfo";
 import { greenColor, mainColor } from "../../utils/colors";
+import { getDoctorById } from "../../services/teacher/teacher";
+import AppointmentCard from "../../components/appointment-card/AppointmentCard";
 
-const AppointmentTeacher = ({ navigation }) => {
+const AppointmentTeacher = ({ navigation, route }) => {
+  const [doctor, setDoctor] = useState();
+  const { doctorId } = route.params;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAppointment, setIsAppointment] = useState(false);
+  const [toggleModal, setToggleModal] = useState(false);
 
-  const [doctor, setDoctor] = useState({
-    first_name: "James",
-    reviews: 5,
-    is_saved: false,
-    content: "Doctor content",
-    about: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos, laborum sunt libero minus animi repudiandae nam illum soluta architecto similique eveniet id, eos, quaerat necessitatibus itaque reiciendis. Dolorum, totam reiciendis?",
-    avatar: "https://img.freepik.com/free-photo/young-handsome-man-holding-notebooks-concept-e-learning-courses_1258-26588.jpg",
-  });
 
+  useEffect(() => {
+    getDoctorById(doctorId).then((res) => {
+      setDoctor(res);
+      console.log(res);
+    }).catch((error) => console.log(error))
+  }, []);
+
+  const handleAppointment = () => {
+    // navigation.navigate('AppointmentSchedule');
+    setIsAppointment(!isAppointment)
+  }
+
+  const handleBookmarkPress = () => {
+    setDoctor({ ...doctor, is_saved: !doctor.is_saved });
+  };
+
+  const closeAppointmentModal = () => {
+    setIsAppointment(false);
+  };
   return (
     <KeyboardAvoidingView
       behavior='padding'
@@ -28,9 +46,9 @@ const AppointmentTeacher = ({ navigation }) => {
         <DoctorInfo
           first_name={doctor?.first_name}
           review={doctor?.reviews}
-          // doctorId={doctorId}
+          doctorId={doctorId}
           isFavorite={doctor?.is_saved}
-          // onBookmarkPress={handleBookmarkPress}
+          onBookmarkPress={handleBookmarkPress}
           content={doctor?.content}
           navigation={navigation}
           about={
@@ -46,16 +64,31 @@ const AppointmentTeacher = ({ navigation }) => {
         />
 
         <Pressable
+          onPress={() => navigation.navigate('Chat', { userId: doctorId })}
           style={styles.customButtonChat}
         >
           <Text style={styles.buttonTextChat}>Chat Now</Text>
         </Pressable>
         <Pressable
+          onPress={handleAppointment}
           style={styles.customButton}
         >
           <Text style={styles.buttonText}>Add schedule</Text>
         </Pressable>
       </ScrollView>
+
+
+      <Modal
+        visible={isAppointment}
+        transparent={true}
+        animationType='slide'
+        onRequestClose={toggleModal}
+      >
+        <AppointmentCard
+          masterId={doctorId}
+          onClose={closeAppointmentModal}
+        />
+      </Modal>
     </KeyboardAvoidingView>
   );
 };

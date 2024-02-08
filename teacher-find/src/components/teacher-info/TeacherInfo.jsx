@@ -10,6 +10,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { greenColor, mainColor, redColor } from '../../utils/colors';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { addDoctorToSaved } from '../../services/teacher/teacher';
 // import { addDoctorToSaved } from '../../services/doctor/doctor';
 // import ReviewContentsModal from '../review-modal/ReviewContentsModal';
 
@@ -56,7 +57,7 @@ const DoctorInfo = ({
                             style={styles.infoCard}
                         >
                             <Icon
-                                name={isFavorite ? 'bookmark' : 'bookmark'}
+                                name={isFavorite ? 'bookmark' : 'bookmark-outline'}
                                 size={24}
                                 color={redColor}
                             />

@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import React from 'react';
 import { mainColor } from '../../utils/colors';
+import { getUserProfile } from '../../services/user/user';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loginUser } from '../../services/auth';
 
 const Login = ({ navigation }) => {
     const [phone, setPhone] = useState('');
@@ -19,32 +22,30 @@ const Login = ({ navigation }) => {
             phone,
             password,
         };
-        navigation.navigate('TabBar');
-        // navigation.navigate('TabBarTeacher');
-        // loginUser(data)
-        //   .then(async (res) => {
-        //     await AsyncStorage.setItem('token', res.access)
-        //       .then(() => {
-        //         getUserProfile().then(async (res) => {
-        //           await AsyncStorage.setItem('role', res.role).then(() => {
-        //             showAsyncStorage();
-        //             const userRole = res.role;
-        //             if (userRole === 'patient') {
-        //               navigation.navigate('TabBar');
-        //             } else if (userRole === 'doctor') {
-        //               navigation.navigate('DoctorTabBar');
-        //             }
-        //           });
-        //         });
-        //       })
-        //       .catch((err) => {
-        //         console.log(err);
-        //       });
-        //     clearInputs([setPhone, setPassword]);
-        //   })
-        //   .catch(() => {
-        //     Alert.alert('Login Failed', 'Username or password is incorrect.');
-        //   });
+        loginUser(data)
+            .then(async (res) => {
+                await AsyncStorage.setItem('token', res.access)
+                    .then(async () => {
+                        await getUserProfile().then(async (res) => {
+                            await AsyncStorage.setItem('role', res.role).then(() => {
+                                const userRole = res.role;
+                                if (userRole === 'student') {
+                                    navigation.navigate('TabBar');
+                                } else if (userRole === 'teacher') {
+                                    navigation.navigate('DoctorTabBar');
+                                }
+                            });
+                        }).catch((err) => console.log(err))
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+                clearInputs([setPhone, setPassword]);
+            })
+            .catch((err) => {
+                console.log(err);
+                Alert.alert('Login Failed', 'Username or password is incorrect.');
+            });
     };
 
     const navigateToRegister = () => {

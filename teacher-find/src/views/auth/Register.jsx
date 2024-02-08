@@ -7,7 +7,8 @@ import {
 } from 'react-native';
 import React from 'react';
 import { greenColor, mainColor } from '../../utils/colors';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+import { registerUser } from '../../services/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Register = ({ navigation }) => {
     const [phone, setPhone] = React.useState('');
@@ -19,17 +20,17 @@ const Register = ({ navigation }) => {
             password,
             groups: 3,
         };
-        //   registerUser(data)
-        //     .then(async (res) => {
-        //       await AsyncStorage.setItem('token', res.access);
-        //       navigation.navigate('Verification');
-        //     })
-        //     .catch((err) => {
-        //       console.log(err);
-        //     });
+        registerUser(data)
+            .then(async (res) => {
+                await AsyncStorage.setItem('token', res.access).then(() => {
+                    navigation.navigate('Verification');
+                }).catch((err) => console.log(err))
+            })
+            .catch((err) => {
+                console.log(err);
+            });
         navigation.navigate('Verification');
     };
-
     const navigateToLogin = () => {
         navigation.navigate('Login');
     };

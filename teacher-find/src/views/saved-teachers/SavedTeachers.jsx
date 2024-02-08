@@ -1,100 +1,63 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
-import DoctorsCard from "../../components/doctors/DoctorsCard";
-import RenderFooter from "../../components/render-footer/RenderFooter";
-import { SearchBar } from "react-native-elements";
-import { mainColor } from "../../utils/colors";
-import { Icon } from 'react-native-elements';
+import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { getSavedDoctors, deleteSavedDoctor } from '../../services/teacher/teacher';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/Ionicons';
+import DoctorsCard from '../../components/doctors/DoctorsCard';
+import { useIsFocused } from '@react-navigation/native';
 
+const SavedTeachers = () => {
+    const [doctors, setDoctors] = React.useState([]);
+    const isFocused = useIsFocused();
+    const [isRefreshing, setIsRefreshing] = React.useState(false);
+    useEffect(() => {
+        getSavedDoctors().then((res) => {
+            setDoctors(res.results);
+            console.log(res.result);
+        });
+    }, [isRefreshing, isFocused]);
 
-const SavedTeachers = ({ navigation }) => {
-    const [loading, setLoading] = useState(false);
-    const [hasMoreData, setHasMoreData] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [doctors, setDoctors] = useState([
-        {
-            id: 1,
-            first_name: 'John Doe',
-            reviews: 4.5,
-            categories: 'Accounant',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '123-456-7890'
-        },
-        {
-            id: 2,
-            first_name: 'Jane Smith',
-            reviews: 4.8,
-            categories: 'Science',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '987-654-3210'
-        },
-        {
-            id: 2,
-            first_name: 'Jane Smith',
-            reviews: 4.8,
-            categories: 'Backend Developer',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '987-654-3210'
-        },
-    ]);
-
-    const renderItem = ({ item }) => (
-        <DoctorsCard
-            key={item.id}
-            name={item.first_name}
-            isChatButton={true}
-            rating={item.reviews}
-            specialty={item.categories ? item.categories : 'Urolog'}
-            imageUrl={
-                item.avatar ||
-                'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg'
-            }
-            icon='star'
-            iconColor='#FFC700'
-            phone={item.phone}
-            navigation={navigation}
-            screen='AppointDoctor'
-            doctorId={item.id}
-        />
-    );
-
+    const handleDeleteSaved = (id) => {
+        deleteSavedDoctor(id).then((res) => {
+            setIsRefreshing(!isRefreshing);
+        });
+    };
     return (
         <View style={styles.container}>
-            <View style={styles.searcherContainer}>
-                <SearchBar
-                    placeholder='Search Doctors...'
-                    value={searchQuery}
-                    platform='default'
-                    containerStyle={styles.searchBarContainer}
-                    inputContainerStyle={styles.searchBarInputContainer}
-                    loadingProps={{}}
-                    showLoading={false}
-                    lightTheme={false}
-                    round={false}
-                    onClear={() => { }}
-                    onFocus={() => { }}
-                    onBlur={() => { }}
-                    onChangeText={(text) => handleSearch(text)}
-                />
+            {doctors?.length === 0 && (
+                <Text style={{ textAlign: 'center' }}>You have no saved doctors</Text>
+            )}
+            {doctors?.map((doctor) => (
+                <View style={styles.doctorsContainer}>
+                    <View style={styles.doctorCard}>
+                        <DoctorsCard
+                            key={doctor.id}
+                            name={doctor?.doctor.first_name}
+                            phone={doctor?.doctor?.last_name}
+                            rating={doctor?.doctor?.reviews}
+                            icon='star'
+                            iconColor='#FFC700'
+                            imageUrl={
+                                doctor?.doctor?.avatar
+                                    ? doctor?.doctor?.avatar
+                                    : 'https://img.freepik.com/free-photo/medium-shot-smiley-man-wearing-coat_23-2148816193.jpg'
+                            }
+                            specialty={
+                                doctor?.doctor?.categories__name
+                                    ? doctor?.doctor?.categories__name
+                                    : 'Urolog'
+                            }
+                        />
+                    </View>
 
-                <Pressable onPress={() => navigation.navigate('Filter')} style={styles.filterButton}>
-                    <Icon name='category' size={24} />
-                </Pressable>
-            </View>
-
-
-            <FlatList
-                style={{ paddingLeft: 4 }}
-                data={doctors}
-                showsHorizontalScrollIndicator={false}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                onEndReachedThreshold={0.1}
-                // onEndReached={() => loadDoctors(page)}
-                ListFooterComponent={
-                    <RenderFooter loading={loading} hasMoreData={hasMoreData} />
-                }
-            />
+                    <TouchableOpacity
+                        onPress={() => handleDeleteSaved(doctor?.id)}
+                        style={styles.deleteButton}
+                    >
+                        <Icon name='trash-outline' size={30} color='red' />
+                    </TouchableOpacity>
+                </View>
+            ))}
         </View>
     );
 };
@@ -105,31 +68,18 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingTop: 25,
-        paddingHorizontal: 10,
-        paddingLeft: 25,
+        padding: 20,
     },
-    searcherContainer: {
+    doctorsContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        gap: 4,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
     },
-    filterButton: {
-        backgroundColor: mainColor,
-        padding: 10,
-        borderRadius: 12,
-        elevation: 5,
+    doctorCard: {
+        flex: 2,
     },
-    searchBarContainer: {
-        backgroundColor: 'transparent',
-        borderBottomColor: 'transparent',
-        borderTopColor: 'transparent',
-        width: '80%',
-    },
-    searchBarInputContainer: {
-        backgroundColor: '#e0e0e0',
-        borderRadius: 8,
+    deleteButton: {
+        marginTop: 5,
     },
 });

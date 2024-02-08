@@ -1,37 +1,42 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DoctorsCard from "../../components/doctors/DoctorsCard";
 import RenderFooter from "../../components/render-footer/RenderFooter";
+import { getTeachers } from "../../services/teacher/teacher";
 
 const TopTeachers = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [hasMoreData, setHasMoreData] = useState(true);
-    const [doctors, setDoctors] = useState([
-        {
-            id: 1,
-            first_name: 'John Doe',
-            reviews: 4.5,
-            categories: 'Accounant',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '123-456-7890'
-        },
-        {
-            id: 2,
-            first_name: 'Jane Smith',
-            reviews: 4.8,
-            categories: 'Science',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '987-654-3210'
-        },
-        {
-            id: 2,
-            first_name: 'Jane Smith',
-            reviews: 4.8,
-            categories: 'Backend Developer',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '987-654-3210'
-        },
-    ]);
+    const [page, setPage] = useState(1);
+    const [doctors, setDoctors] = useState([]);
+
+    useEffect(() => {
+        loadDoctors(page);
+        getTeachers().then((res) => console.log(res))
+    }, [page]);
+
+    const loadDoctors = async (currentPage) => {
+        if (!hasMoreData || loading) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await getTeachers(currentPage);
+            console.log(response);
+            setDoctors((prevDoctors) => [...prevDoctors, ...response.results]);
+
+            if (response.next) {
+                setPage(currentPage + 1);
+            } else {
+                setHasMoreData(false);
+            }
+        } catch (error) {
+            console.error('Error loading doctors:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const renderItem = ({ item }) => (
         <DoctorsCard

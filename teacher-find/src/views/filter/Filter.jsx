@@ -1,7 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import { SearchBar } from "react-native-elements";
 import { grayColor, greenColor, mainColor } from "../../utils/colors";
+import { getTeachers } from "../../services/teacher/teacher";
+import RenderFooter from "../../components/render-footer/RenderFooter";
+import DoctorsCard from "../../components/doctors/DoctorsCard";
 
 const categories = [
   'Science',
@@ -11,11 +14,44 @@ const categories = [
   'JAVA',
 ];
 
-const Filter = () => {
+const Filter = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [hasMoreData, setHasMoreData] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(
     'Science'
   );
+
+
+  useEffect(() => {
+    loadDoctors(page);
+    getTeachers().then((res) => console.log(res))
+  }, [page]);
+
+  const loadDoctors = async (currentPage) => {
+    if (!hasMoreData || loading) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await getTeachers(currentPage);
+      console.log(response);
+      setDoctors((prevDoctors) => [...prevDoctors, ...response.results]);
+
+      if (response.next) {
+        setPage(currentPage + 1);
+      } else {
+        setHasMoreData(false);
+      }
+    } catch (error) {
+      console.error('Error loading doctors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCategoryPress = (category) => {
     setSelectedCategory(category);
@@ -41,6 +77,26 @@ const Filter = () => {
         {category}
       </Text>
     </Pressable>
+  );
+
+  const renderItemList = ({ item }) => (
+    <DoctorsCard
+      key={item.id}
+      name={item.first_name}
+      isChatButton={false}
+      rating={item.reviews}
+      specialty={item.categories ? item.categories : 'Urolog'}
+      imageUrl={
+        item.avatar ||
+        'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg'
+      }
+      icon='star'
+      iconColor='#FFC700'
+      phone={item.phone}
+      navigation={navigation}
+      screen='AppointTeacher'
+      doctorId={item.id}
+    />
   );
 
   return (
@@ -70,6 +126,22 @@ const Filter = () => {
           renderCategoryButton(category, index)
         )}
       </ScrollView>
+
+
+      <FlatList
+        style={{
+          paddingVertical: 4,
+        }}
+        data={doctors}
+        showsHorizontalScrollIndicator={false}
+        renderItem={renderItemList}
+        keyExtractor={(item, index) => index.toString()}
+        onEndReachedThreshold={0.1}
+        // onEndReached={() => loadDoctors(page)}
+        ListFooterComponent={
+          <RenderFooter loading={loading} hasMoreData={hasMoreData} />
+        }
+      />
 
       <Pressable style={styles.applyButton}>
         <Text>Apply</Text>

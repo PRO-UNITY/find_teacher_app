@@ -6,112 +6,149 @@ import { grayColor, greenColor, mainColor } from '../../utils/colors';
 
 // import { getDoctors, getFilteredDoctors } from '../../services/doctor/doctor';
 import RenderFooter from '../../components/render-footer/RenderFooter';
+import { getDoctorByCategoryFilter, getFilteredDoctors, getTeachers, getTopTeachers } from '../../services/teacher/teacher';
+import { getCategories } from '../../services/category/category';
 
 
 const Home = ({ navigation }) => {
-    const [doctors, setDoctors] = useState([
-        {
-            id: 1,
-            first_name: 'John Doe',
-            reviews: 4.5,
-            categories: 'Accounant',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '123-456-7890'
-        },
-        {
-            id: 2,
-            first_name: 'Jane Smith',
-            reviews: 4.8,
-            categories: 'Science',
-            avatar: 'https://www.superstock.com/cdn/5512/Comp/5512-18236475.webp',
-            phone: '987-654-3210'
-        },
-        {
-            id: 2,
-            first_name: 'Jane Smith',
-            reviews: 4.8,
-            categories: 'Backend Developer',
-            avatar: 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg',
-            phone: '987-654-3210'
-        },
-        {
-            id: 2,
-            first_name: 'Inna Smith',
-            reviews: 4.8,
-            categories: 'Frontend Developer',
-            avatar: 'https://cds.cdm.depaul.edu/wp-content/uploads/2016/11/smiling-female-teacher-with-long-hair-in-front-of-chalk-board.jpg',
-            phone: '987-654-3210'
-        },
-    ]);
+    const [doctors, setDoctors] = useState([]);
+    const [topDoctors, setTopDoctors] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [hasMoreData, setHasMoreData] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState('Accounant');
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
+    useEffect(() => {
+        loadDoctors(page);
 
-    // useEffect(() => {
-    //     loadDoctors(page);
-    // }, [page]);
+    }, [page]);
 
-    // const loadDoctors = async (currentPage) => {
-    //     if (!hasMoreData || loading) {
-    //         return;
-    //     }
+    useEffect(() => {
+        loadTopDoctors(page);
+    }, [page]);
 
-    //     setLoading(true);
-    //     try {
-    //         // const response = await getDoctors(currentPage);
-    //         // setDoctors((prevDoctors) => [...prevDoctors, ...response.results]);
+    useEffect(() => {
+        getCategories().then((res) => {
+            setCategories([{ name: 'All' }, ...res]);
+        });
+    }, []);
 
-    //         if (response.next) {
-    //             setPage(currentPage + 1);
-    //         } else {
-    //             setHasMoreData(false);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error loading doctors:', error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
+    const loadTopDoctors = async () => {
+        if (loading) {
+            console.log('no more data');
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await getTopTeachers();
+            console.log('response');
+            console.log(response);
+            console.log('response');
+            setTopDoctors((prevDoctors) => [...prevDoctors, ...response.results]);
+            if (response.next) {
+                setPage(currentPage + 1);
+            } else {
+                setHasMoreData(false);
+            }
+        } catch (error) {
+            console.error('Error loading doctors:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const loadDoctors = async (currentPage) => {
+        if (!hasMoreData || loading) {
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await getTeachers(currentPage);
+            setDoctors((prevDoctors) => [...prevDoctors, ...response.results]);
+            if (response.next) {
+                setPage(currentPage + 1);
+            } else {
+                setHasMoreData(false);
+            }
+        } catch (error) {
+            console.error('Error loading doctors:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const handleSearch = (text) => {
         getFilteredDoctors(text).then((res) => {
             setDoctors(res.results);
-        });
+        }).catch
         setSearchQuery(text);
     };
 
-    const handleCategoryPress = (category) => {
+    // const handleCategoryPress = async (category) => {
+    //     setSelectedCategory(category);
+    //     if (category.name === 'All') {
+    //         loadDoctors(page);
+    //         console.log('amir');
+    //         return;
+    //     }
+    //     try {
+    //         if (category === 'All') {
+    //             console.log('All');
+    //             const response = await loadDoctors();
+    //             setDoctors(response.results);
+    //             return;
+    //         } else {
+    //             const response = await getDoctorByCategoryFilter(category.id);
+    //             setDoctors(response.results);
+    //             console.log(response);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error filtering doctors:', error);
+    //     }
+    // };
+
+    const handleCategoryPress = async (category) => {
+        setHasMoreData(true); // Установить hasMoreData в true перед загрузкой данных
         setSelectedCategory(category);
-        setDoctors([]);
-        setPage(1);
+        setPage(1); // Установить страницу обратно на 1
+        console.log(category.name);
+        if (category.name == 'All') {
+            loadDoctors(1); // Загрузить данные с первой страницы
+            return;
+        }
+        try {
+            const response = await getDoctorByCategoryFilter(category.id);
+            setDoctors(response.results);
+        } catch (error) {
+            console.error('Error filtering doctors:', error);
+        }
     };
 
-    const renderCategoryButton = (doctor, index) => (
+
+    const renderCategoryButton = (category, index) => (
         <Pressable
             key={index}
             style={[
                 styles.categoryButton,
                 {
-                    backgroundColor: doctor.categories === selectedCategory ? mainColor : '#fff',
-                    borderColor: doctor.categories === selectedCategory ? mainColor : grayColor,
+                    backgroundColor: category.name === selectedCategory.name ? mainColor : '#fff',
+                    borderColor: category.name === selectedCategory.name ? mainColor : grayColor,
                 },
             ]}
-            onPress={() => handleCategoryPress(doctor.categories)}
+            onPress={() => handleCategoryPress(category)}
         >
             <Text
-                style={[{
-                    color: doctor.categories === selectedCategory ? '#fff' : '#000',
-                    fontWeight: doctor.categories === selectedCategory ? 'bold' : 'normal'
-                }]}
+                style={[{ color: category.name === selectedCategory.name ? '#fff' : '#000' }]}
             >
-                {doctor.categories}
+                {category.name}
             </Text>
         </Pressable>
     );
+
+
 
     const renderItem = ({ item }) => (
         <DoctorsCard
@@ -128,6 +165,7 @@ const Home = ({ navigation }) => {
             iconColor='#FFC700'
             phone={item.phone}
             navigation={navigation}
+            screen='AppointTeacher'
             doctorId={item.id}
         />
     );
@@ -176,7 +214,7 @@ const Home = ({ navigation }) => {
             <FlatList
                 style={{ marginBottom: 16, marginTop: 16, flexDirection: 'row', gap: 16, paddingRight: 16, padding: 4 }} // A
                 horizontal
-                data={doctors}
+                data={topDoctors}
                 showsHorizontalScrollIndicator={false}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -192,13 +230,13 @@ const Home = ({ navigation }) => {
                 showsHorizontalScrollIndicator={false}
                 style={styles.categoryScroll}
             >
-                {doctors.map((doctor, index) =>
-                    renderCategoryButton(doctor, index)
+                {categories.map((category, index) =>
+                    renderCategoryButton(category, index)
                 )}
             </ScrollView>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 22 }}>
-                <Text style={styles.titleTitle}>Popular Peoples</Text>
+                <Text style={styles.titleTitle}>Popular Teacher</Text>
                 <Pressable onPress={() => navigation.navigate('TopTeachers')}>
                     <Text style={{ color: greenColor, fontSize: 16, fontWeight: 'bold' }}>View All</Text>
                 </Pressable>

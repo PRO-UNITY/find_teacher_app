@@ -9,6 +9,7 @@ import { useIsFocused } from '@react-navigation/native';
 import SavedTeachers from '../../views/saved-teachers/SavedTeachers';
 import ChatList from '../../views/chat/ChatList';
 import { greenColor } from '../../utils/colors';
+import Appointments from '../../views/appointment-teacher/Appointments';
 
 const Tab = createBottomTabNavigator();
 
@@ -57,6 +58,16 @@ const TabBar = ({ navigation }) => {
                 }}
                 name='Saved'
                 component={SavedTeachers}
+            />
+            <Tab.Screen
+                options={{
+                    tabBarLabel: 'Appointments',
+                    tabBarIcon: ({ color, size }) => (
+                        <Icon name='calendar-outline' color={color} size={size} />
+                    ),
+                }}
+                name='Appointments'
+                component={Appointments}
             />
             <Tab.Screen
                 options={{

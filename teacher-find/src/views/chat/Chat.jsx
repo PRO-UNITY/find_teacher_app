@@ -14,6 +14,9 @@ import {
     greenColor,
     mainColor,
 } from '../../utils/colors';
+import { getChatConversationById, putChatConversationById } from '../../services/chat/chat';
+import { clearInputs } from '../../utils/clearInputs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {
 //     getChatConversationById,
 //     putChatConversationById,
@@ -22,63 +25,63 @@ import {
 const Chat = ({ route }) => {
     const [user, setUser] = useState({});
     const [messages, setMessages] = useState([
-        {
-            "user": {
-                "id": 123,
-                "name": "John Doe",
-                "role": "admin"
-            },
-            "messages": [
-                {
-                    "id": 1,
-                    "text": "Hello!",
-                    "sender_type": "initiator"
-                },
-                {
-                    "id": 2,
-                    "text": "Hi there!",
-                    "sender_type": "receiver"
-                },
-            ]
-        },
-        {
-            "user": {
-                "id": 456,
-                "name": "Jane Doe",
-                "role": "user"
-            },
-            "messages": [
-                {
-                    "id": 3,
-                    "text": "Hey!",
-                    "sender_type": "initiator"
-                },
-                {
-                    "id": 4,
-                    "text": "Hello John!",
-                    "sender_type": "receiver"
-                },
-            ]
-        },
-        {
-            "user": {
-                "id": 789,
-                "name": "Alice",
-                "role": "user"
-            },
-            "messages": [
-                {
-                    "id": 5,
-                    "text": "Good day!",
-                    "sender_type": "initiator"
-                },
-                {
-                    "id": 6,
-                    "text": "Hi Alice!",
-                    "sender_type": "receiver"
-                },
-            ]
-        },
+        // {
+        //     "user": {
+        //         "id": 123,
+        //         "name": "John Doe",
+        //         "role": "admin"
+        //     },
+        //     "messages": [
+        //         {
+        //             "id": 1,
+        //             "text": "Hello!",
+        //             "sender_type": "initiator"
+        //         },
+        //         {
+        //             "id": 2,
+        //             "text": "Hi there!",
+        //             "sender_type": "receiver"
+        //         },
+        //     ]
+        // },
+        // {
+        //     "user": {
+        //         "id": 456,
+        //         "name": "Jane Doe",
+        //         "role": "user"
+        //     },
+        //     "messages": [
+        //         {
+        //             "id": 3,
+        //             "text": "Hey!",
+        //             "sender_type": "initiator"
+        //         },
+        //         {
+        //             "id": 4,
+        //             "text": "Hello John!",
+        //             "sender_type": "receiver"
+        //         },
+        //     ]
+        // },
+        // {
+        //     "user": {
+        //         "id": 789,
+        //         "name": "Alice",
+        //         "role": "user"
+        //     },
+        //     "messages": [
+        //         {
+        //             "id": 5,
+        //             "text": "Good day!",
+        //             "sender_type": "initiator"
+        //         },
+        //         {
+        //             "id": 6,
+        //             "text": "Hi Alice!",
+        //             "sender_type": "receiver"
+        //         },
+        //     ]
+        // },
     ]);
 
     const [inputText, setInputText] = useState('');
@@ -87,18 +90,18 @@ const Chat = ({ route }) => {
     const [role, setRole] = useState('');
     const pageRef = useRef(1);
 
-    // useEffect(() => {
-    //     getChatConversationById(route.params.userId, pageRef.current).then(
-    //         (res) => {
-    //             console.log(res);
-    //             setMessages(res.results);
-    //         }
-    //     );
-    // }, [route.params.userId]);
+    useEffect(() => {
+        getChatConversationById(route.params.userId, pageRef.current).then(
+            (res) => {
+                console.log(res);
+                setMessages(res.results);
+            }
+        );
+    }, [route.params.userId]);
 
-    // useEffect(() => {
-    //     AsyncStorage.getItem('role').then((res) => setRole(res || ''));
-    // }, []);
+    useEffect(() => {
+        AsyncStorage.getItem('role').then((res) => setRole(res || ''));
+    }, []);
 
     const loadNextPage = async () => {
         if (loading || loadingNextPage) return;
@@ -169,7 +172,7 @@ const Chat = ({ route }) => {
             <FlatList
                 data={reversedMessages}
                 renderItem={renderMessage}
-                keyExtractor={(item, index) => item.id.toString() || index.toString()}
+                keyExtractor={(item, index) => index.toString()}
                 contentContainerStyle={styles.contentContainer}
                 onEndReachedThreshold={0.5}
                 onMomentumScrollEnd={({ nativeEvent }) => {

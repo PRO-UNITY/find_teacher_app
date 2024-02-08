@@ -20,7 +20,7 @@ const DoctorsCard = ({
 }) => {
 
     return (
-        <Pressable onPress={() => navigation.navigate(screen)} style={[styles.container, isChatButton ? styles.withChatButton : null]}>
+        <Pressable onPress={() => navigation.navigate(screen, { doctorId })} style={[styles.container, isChatButton ? styles.withChatButton : null]}>
             {imageUrl && <Image source={{ uri: imageUrl }} style={styles.image} />}
             <View style={styles.textContainer}>
                 <Text style={styles.nameText}>Mr. {name}</Text>
@@ -32,7 +32,7 @@ const DoctorsCard = ({
                 </View>
                 {
                     isChatButton && (
-                        <Pressable onPress={() => navigation.navigate('ChatList')} style={styles.chatNowButton}>
+                        <Pressable onPress={() => navigation.navigate('Chat', { doctorId })} style={styles.chatNowButton}>
                             <Text style={styles.chatNowText}>Chat Now</Text>
                         </Pressable>
                     )

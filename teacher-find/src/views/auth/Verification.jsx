@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { mainColor } from '../../utils/colors';
+import { verifyUser } from '../../services/auth';
 // import { verifyUser } from '../../services/auth/Auth';
 
 
@@ -27,15 +28,15 @@ const Verification = ({ navigation }) => {
             code: allCode,
         };
         navigation.navigate('TabBar');
-        // verifyUser(data)
-        //   .then(async (res) => {
-        //     await AsyncStorage.setItem('token', res.access);
-        //     navigation.navigate('TabBar');
-        //     // navigation.navigate('Login');
-        //   })
-        //   .catch((err) => {
-        //     console.log(err);
-        //   });
+        verifyUser(data)
+            .then(async (res) => {
+                await AsyncStorage.setItem('token', res.access);
+                navigation.navigate('TabBar');
+                // navigation.navigate('Login');
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     const handleChangeText = (text, index) => {
