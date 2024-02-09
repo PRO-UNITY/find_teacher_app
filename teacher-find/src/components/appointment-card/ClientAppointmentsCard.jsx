@@ -63,7 +63,7 @@ const ClientAppointmentCards = ({
                     <View style={styles.textContainer}>
                         <Text style={styles.nameText}>Name: {name}</Text>
                         <View style={styles.ratingContainer}>
-                            <Text style={styles.ratingText}>Specialty: {specialty}</Text>
+                            <Text style={styles.ratingText}>Phone: {specialty}</Text>
                         </View>
                     </View>
                 </View>

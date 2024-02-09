@@ -24,19 +24,20 @@ const DoctorsCard = ({
             {imageUrl && <Image source={{ uri: imageUrl }} style={styles.image} />}
             <View style={styles.textContainer}>
                 <Text style={styles.nameText}>Mr. {name}</Text>
-                <Text style={styles.phoneText}>{specialty}</Text>
+                <Text style={styles.phoneText}>{specialty} mentor</Text>
 
                 <View style={styles.ratingContainer}>
+                    <Text>Raiting</Text>
                     <Icon name={icon} style={[styles.starIcon, { color: iconColor }]} />
                     <Text style={styles.ratingText}>{rating}</Text>
                 </View>
-                {
+                {/* {
                     isChatButton && (
                         <Pressable onPress={() => navigation.navigate('Chat', { doctorId })} style={styles.chatNowButton}>
                             <Text style={styles.chatNowText}>Chat Now</Text>
                         </Pressable>
                     )
-                }
+                } */}
             </View>
         </Pressable>
     );

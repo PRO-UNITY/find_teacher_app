@@ -26,7 +26,9 @@ import Chat from '../views/chat/Chat';
 // import Notification from '../../screens/notification/Notification';
 // import Reviews from '../../screens/reviews/Reviews';
 import TeacherTabBar from '../components/tabbar/TeacherTabBar';
-import Notification from '../views/notifications/Notifications';
+import TeacherAppointments from '../views/teacher-view/teacher-appointments/TeacherAppointments';
+import TeacherAppointmentUser from '../../src/views/teacher-view/teacher-appointments/TeacherAppointUser'
+import Notifications from '../views/notifications/Notifications';
 
 const Stack = createStackNavigator();
 
@@ -61,13 +63,13 @@ const AppNavigator = () => {
             <Stack.Screen name='Verification' component={Verification} />
             <Stack.Screen name='AppointTeacher' component={AppointTeacher} />
             <Stack.Screen name='Chat' component={Chat} />
-            <Stack.Screen
+            {/* <Stack.Screen
                 name='TabBar'
                 component={TabBar}
                 options={{
                     headerShown: false,
                 }}
-            />
+            /> */}
             <Stack.Screen
                 name='TabBarTeacher'
                 component={TeacherTabBar}
@@ -76,15 +78,19 @@ const AppNavigator = () => {
                 }}
             />
             <Stack.Screen
-                name='Notification'
-                component={Notification}
+                name='TeacherAppointmentUser'
+                component={TeacherAppointmentUser}
+            />
+            <Stack.Screen
+                name='Register'
+                component={Register}
                 options={{
                     headerShown: false,
                 }}
             />
             <Stack.Screen
-                name='Register'
-                component={Register}
+                name='Notifications'
+                component={Notifications}
                 options={{
                     headerShown: false,
                 }}

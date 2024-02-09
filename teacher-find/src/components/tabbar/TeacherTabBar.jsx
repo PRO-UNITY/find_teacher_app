@@ -9,6 +9,7 @@ import { useIsFocused } from '@react-navigation/native';
 import SavedTeachers from '../../views/saved-teachers/SavedTeachers';
 import ChatList from '../../views/chat/ChatList';
 import { greenColor } from '../../utils/colors';
+import TeacherHome from '../../views/home/TeacherHome';
 
 const Tab = createBottomTabNavigator();
 
@@ -45,8 +46,23 @@ const TabBar = ({ navigation }) => {
                     ),
                 }}
                 name='Home'
-                component={Home}
+                component={TeacherHome}
             />
+            {/* <Tab.Screen
+                options={{
+                    tabBarLabel: 'Home',
+                    tabBarIcon: ({ color, size }) => (
+                        <Icon name='home-outline' color={color} size={size} />
+                    ),
+                    headerTitle: () => (
+                        <View style={styles.header}>
+                            <HeaderTitle icons={headersTitleIcons} navigation={navigation} />
+                        </View>
+                    ),
+                }}
+                name='Home'
+                component={Home}
+            /> */}
             <Tab.Screen
                 options={{
                     tabBarLabel: 'ChatList',

@@ -111,12 +111,12 @@ const Home = ({ navigation }) => {
     // };
 
     const handleCategoryPress = async (category) => {
-        setHasMoreData(true); // Установить hasMoreData в true перед загрузкой данных
+        setHasMoreData(true);
         setSelectedCategory(category);
-        setPage(1); // Установить страницу обратно на 1
+        setPage(1);
         console.log(category.name);
         if (category.name == 'All') {
-            loadDoctors(1); // Загрузить данные с первой страницы
+            loadDoctors(1);
             return;
         }
         try {
@@ -147,8 +147,6 @@ const Home = ({ navigation }) => {
             </Text>
         </Pressable>
     );
-
-
 
     const renderItem = ({ item }) => (
         <DoctorsCard

@@ -1,38 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-// import DoctorsCard from '../../../components/masters-card/MastersCard';
-import RenderFooter from '../../components/render-footer/RenderFooter';
-// import { getAppointments, getDoctors } from '../../services/masters/masters';
-import { getAppointmentDoctors, statusAppointment } from '../../services/teacher/teacher';
-import ClientAppointmentCards from '../../components/appointment-card/ClientAppointmentsCard';
-import AppointmentCard from '../../components/appointment-card/AppointmentCard';
+import DoctorsCard from '../../../components/doctors/DoctorsCard';
+import RenderFooter from '../../../components/render-footer/RenderFooter';
+// import { getAppointments, getMasters } from '../../services/masters/masters';
+import { getAppointments, getMasters } from '../../../services/teacher/teacher';
+import { getAppointmentDoctors } from '../../../services/teacher/teacher';
+import ClientAppointmentCards from '../../../components/appointment-card/ClientAppointmentsCard';
 import {
     blueColor,
     grayColor,
     greenColor,
     redColor,
     yellowColor,
-} from '../../utils/colors';
-import { deleteAppointmentById } from '../../services/student/student';
+} from '../../../utils/colors';
 
-const Appointments = ({ navigation }) => {
+const TeacherAppointments = ({ navigation }) => {
     const [doctors, setDoctors] = useState([]);
-    const [page, setPage] = useState(1); 891
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [hasMoreData, setHasMoreData] = useState(true);
-    const [deleteAppointment, setDeleteAppointment] = useState(false);
     const isFocused = useIsFocused();
 
     // get appointment doctors
     useEffect(() => {
         getAppointmentDoctors(page).then((res) => {
             console.log(res);
-            setDoctors(res.results);
+            setDoctors(res.data.results);
         });
-    }, [isFocused, deleteAppointment]);
+    }, [isFocused]);
 
-    //   const loadAppointments = async (currentPage: number) => {
+    //   const loadAppointments = async (currentPage) => {
     //     if (!hasMoreData || loading) {
     //       return;
     //     }
@@ -65,49 +63,21 @@ const Appointments = ({ navigation }) => {
     //     }
     //   };
 
-    const handleCompleteAppointment = (appointments) => {
-        const data = {
-            appointments: appointments,
-        };
-        Alert.alert('Complete Appointment', 'Are you sure you want to complete this appointment?', [
-            {
-                text: 'No',
-                style: 'cancel',
-            },
-            {
-                text: 'Yes',
-                onPress: () => {
-
-                    deleteAppointmentById(appointments).then(() => {
-                        Alert.alert('Appointment Completed', 'The appointment has been completed.');
-                        setDeleteAppointment(!deleteAppointment);
-                    }
-                    ).catch((error) => {
-                        console.error('Error completing appointment:', error);
-                    }
-                    )
-                },
-            },
-        ]);
-    };
-
-
     const renderItem = ({ item }) => (
         <ClientAppointmentCards
             key={item.id}
-            name={item.doctor.first_name}
+            name={item.user.first_name}
             rating={item.doctor.review}
             date={item.timestamp}
             time={item.timestamp}
-            onCancelConfirmation={() => handleCompleteAppointment(item.id)}
             status={item?.status ? item.status : 'No status'}
-            specialty={item.categories ? item.categories : 'Massajist'}
+            specialty={item.phone ? item.phone : '+998911111111'}
             imageUrl={
                 item.doctor.avatar ||
                 'https://t3.ftcdn.net/jpg/03/02/88/46/360_F_302884605_actpipOdPOQHDTnFtp4zg4RtlWzhOASp.jpg'
             }
             navigation={navigation}
-            screen='MasterDetails'
+            // screen='MasterDetails'
             masterId={item.id}
             icon='ellipse'
             iconColor={
@@ -143,7 +113,7 @@ const Appointments = ({ navigation }) => {
     );
 };
 
-export default Appointments;
+export default TeacherAppointments;
 
 const styles = StyleSheet.create({
     container: {

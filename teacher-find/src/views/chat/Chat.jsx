@@ -8,82 +8,26 @@ import {
     Platform,
     TouchableOpacity,
     FlatList,
+    Alert,
 } from 'react-native';
 import {
     blueColor,
+    grayColor,
     greenColor,
     mainColor,
+    yellowColor,
 } from '../../utils/colors';
-import { getChatConversationById, putChatConversationById } from '../../services/chat/chat';
+import {
+    getChatConversationById,
+    putChatConversationById,
+} from '../../services/chat/chat';
 import { clearInputs } from '../../utils/clearInputs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import {
-//     getChatConversationById,
-//     putChatConversationById,
-// } from '../../services/chat/chat';
+import { statusAppointment } from '../../services/teacher/teacher';
 
 const Chat = ({ route }) => {
     const [user, setUser] = useState({});
-    const [messages, setMessages] = useState([
-        // {
-        //     "user": {
-        //         "id": 123,
-        //         "name": "John Doe",
-        //         "role": "admin"
-        //     },
-        //     "messages": [
-        //         {
-        //             "id": 1,
-        //             "text": "Hello!",
-        //             "sender_type": "initiator"
-        //         },
-        //         {
-        //             "id": 2,
-        //             "text": "Hi there!",
-        //             "sender_type": "receiver"
-        //         },
-        //     ]
-        // },
-        // {
-        //     "user": {
-        //         "id": 456,
-        //         "name": "Jane Doe",
-        //         "role": "user"
-        //     },
-        //     "messages": [
-        //         {
-        //             "id": 3,
-        //             "text": "Hey!",
-        //             "sender_type": "initiator"
-        //         },
-        //         {
-        //             "id": 4,
-        //             "text": "Hello John!",
-        //             "sender_type": "receiver"
-        //         },
-        //     ]
-        // },
-        // {
-        //     "user": {
-        //         "id": 789,
-        //         "name": "Alice",
-        //         "role": "user"
-        //     },
-        //     "messages": [
-        //         {
-        //             "id": 5,
-        //             "text": "Good day!",
-        //             "sender_type": "initiator"
-        //         },
-        //         {
-        //             "id": 6,
-        //             "text": "Hi Alice!",
-        //             "sender_type": "receiver"
-        //         },
-        //     ]
-        // },
-    ]);
-
+    const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingNextPage, setLoadingNextPage] = useState(false);
@@ -157,7 +101,7 @@ const Chat = ({ route }) => {
         );
     };
 
-    const reversedMessages = messages.flatMap((msgObj) => msgObj.messages).reverse()
+    const reversedMessages = [...messages].reverse();
 
     return (
         <KeyboardAvoidingView
@@ -166,13 +110,15 @@ const Chat = ({ route }) => {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 85 : 0}
         >
             <View style={styles.header}>
-                <Text style={styles.headerText}>Chating</Text>
+                <Text style={styles.headerText}>Clinic app chat</Text>
             </View>
 
             <FlatList
                 data={reversedMessages}
                 renderItem={renderMessage}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) =>
+                    item.id ? item.id.toString() : index.toString()
+                }
                 contentContainerStyle={styles.contentContainer}
                 onEndReachedThreshold={0.5}
                 onMomentumScrollEnd={({ nativeEvent }) => {
@@ -206,12 +152,12 @@ export default Chat;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#e5e5e5',
+        backgroundColor: '#fff',
     },
     header: {
         flexDirection: 'row',
         height: 50,
-        backgroundColor: greenColor,
+        backgroundColor: mainColor,
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         alignItems: 'center',
@@ -237,11 +183,11 @@ const styles = StyleSheet.create({
     },
     userMessage: {
         alignSelf: 'flex-end',
-        backgroundColor: mainColor,
+        backgroundColor: greenColor,
     },
     receiverMessage: {
         alignSelf: 'flex-start',
-        backgroundColor: blueColor,
+        backgroundColor: grayColor,
     },
     initiatorMessage: {
         alignSelf: 'flex-end',

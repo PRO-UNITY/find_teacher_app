@@ -12,12 +12,14 @@ import { mainColor } from '../../utils/colors';
 import { getUserProfile } from '../../services/user/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from '../../services/auth';
+import { clearInputs } from '../../utils/clearInputs';
 
 const Login = ({ navigation }) => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
+        console.log('login');
         const data = {
             phone,
             password,
@@ -32,7 +34,7 @@ const Login = ({ navigation }) => {
                                 if (userRole === 'student') {
                                     navigation.navigate('TabBar');
                                 } else if (userRole === 'teacher') {
-                                    navigation.navigate('DoctorTabBar');
+                                    navigation.navigate('TabBarTeacher');
                                 }
                             });
                         }).catch((err) => console.log(err))
